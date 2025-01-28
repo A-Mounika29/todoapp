@@ -1,9 +1,10 @@
-
 import React, { useState, useEffect } from "react";
 
 export default function Todo() {
   const [task, setTask] = useState("");
   const [tasks, setTasks] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentTask, setCurrentTask] = useState({}); 
 
   useEffect(()=>{
       if(localStorage.getItem("localTasks")){
@@ -30,7 +31,32 @@ export default function Todo() {
   const handleClear=()=>{
       setTasks([]);
       localStorage.removeItem("localTasks");
-  }
+  };
+
+  const handleEdit = (task)=>{
+    setIsEditing(true);
+    setCurrentTask({ ...task });
+    setTask(task.title);
+  };
+
+  const saveEdit = () => {
+    settasks(
+      tasks.map((t)) =>
+      t.id == currentTask.id ? { ...t,title: task } : t
+    )
+  );
+    localStorage.setItem(
+      "localTasks",
+      JSON.stringify(
+        tasks.map((t) =>
+          t.id === currentTask.id ? { ...t, title: task } : t
+        )
+      )
+    );
+    settask("");
+    setIsEditing(false);
+  };
+  
   return (
     <div className="container row">
       <h1 className="mt-3 text-Black">To-Do App</h1>
@@ -45,6 +71,13 @@ export default function Todo() {
         />
       </div>
       <div className="col-4">
+        {isEditing ? (
+        <button
+          className="btn btn-success form-control material-icons"
+          onClick={saveEdit}
+        >
+          save
+          </button>
         <button
           className="btn btn-primary form-control material-icons"
           onClick={addTask}
@@ -70,12 +103,21 @@ export default function Todo() {
                     {task.title}
                 </span>
             </div>
-
+            <div className="col=1">
+              <button
+                className="mt-2 btn btn-warning material-icons"
+                onClick={() => handleEdit(task)}
+              >
+                edit
+              </button>
+            </div>
             <div className="col-1">
                 <button
                 className =" mt-2 btn btn-warning material-icons"
                 onClick ={()=> handleDelete(task)}
-                >delete</button>
+                >
+                  delete
+                </button>
             </div>
         </React.Fragment>
       ))}
